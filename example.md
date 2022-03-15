@@ -16,16 +16,19 @@ toyama satoshi / @toyamarinyon
 - 📰 **最近の仕事** - ROUTE06 という会社で複数のマイクロサービスや SaaS を組み合わせたプロダクト開発に参加している
 
 <div class="flex space-x-2">
-<div>
-<img src="/route06_a.png" class="h-64 shadow" />
-<a href="https://prtimes.jp/main/html/rd/p/000000006.000056964.html" class="text-xs">ROUTE06、三菱商事の部品調達に関するマーケットプレイスの立ち上げを支援 / PRTimes</a>
-</div>
+
 
 <div>
 <img src="/route06.png" class="h-64 shadow" />
 <a href="https://speakerdeck.com/route06/zhu-shi-hui-she-route06-rutositukusu-hui-she-shao-jie" class="text-xs">会社紹介</a>
 
 </div>
+
+<div>
+<img src="/route06_a.png" class="h-64 shadow" />
+<a href="https://prtimes.jp/main/html/rd/p/000000006.000056964.html" class="text-xs">ROUTE06、三菱商事の部品調達に関するマーケットプレイスの立ち上げを支援 / PRTimes</a>
+</div>
+
 </div>
 
 ---
