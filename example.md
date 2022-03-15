@@ -103,7 +103,7 @@ toyama satoshi / @toyamarinyon
 - アクセスすると、api を実行して、db にある商品をブラウザに表示します
 - 商品名を日本語と英語で表示できます
 
-<img src="/flow.png" />
+<img src="/flow.png" class="h-64" />
 
 ---
 
