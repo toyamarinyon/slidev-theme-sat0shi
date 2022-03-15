@@ -1,5 +1,6 @@
 ---
 theme: ./
+download: true
 ---
 
 <img src="/title.png">
@@ -14,7 +15,18 @@ toyama satoshi / @toyamarinyon
 
 - 📰 **最近の仕事** - ROUTE06 という会社で複数のマイクロサービスや SaaS を組み合わせたプロダクト開発に参加している
 
-<img src="/route06.png" class="h-64 ml-32 mb-2" />
+<div class="flex space-x-2">
+<div>
+<img src="/route06_a.png" class="h-64 shadow" />
+<a href="https://prtimes.jp/main/html/rd/p/000000006.000056964.html" class="text-xs">ROUTE06、三菱商事の部品調達に関するマーケットプレイスの立ち上げを支援 / PRTimes</a>
+</div>
+
+<div>
+<img src="/route06.png" class="h-64 shadow" />
+<a href="https://speakerdeck.com/route06/zhu-shi-hui-she-route06-rutositukusu-hui-she-shao-jie" class="text-xs">会社紹介</a>
+
+</div>
+</div>
 
 ---
 
@@ -69,13 +81,22 @@ toyama satoshi / @toyamarinyon
 
 ---
 
-# 10分後のゴール
+# ５分後のゴール 🥅
 
-- コンシューマ駆動テストが解決する課題や、その実現方法の大枠をイメージいただき、使ってみたいなと思ってもらえれば幸いです
+## ご存じなかった方
+
+- Pact を使ってコンシューマ駆動テストを書くことでどのような課題が解決できるかをご理解いただき、機会があれば使ってみたいなと思ってもらえれば幸いです
+
+<br>
+
+## ご存知の方、使っている方
+
+- 新しい情報はあまりない思います 🙏
+- 認識違うところあればコメントいただければありがたいです 🙏
 
 ---
 
-# デモ
+# デモサービスを作って、コンシューマ駆動テストをやってみました
 
 - デモ用の EC サイト [Hello Pact Store](https://store.sat0shi.dev/) を作りました
 - 子ども向けのヘアゴムやピンを売っている EC サイトのイメージ
@@ -86,176 +107,137 @@ toyama satoshi / @toyamarinyon
 
 ---
 
-# テストしたいこと
-
-- 英語サイトにアクセスしたら、英語の商品が表示される
-- 日本語サイトにアクセスしたら、日本語の商品が表示される
-
-<br>
-
-# テスト方法
-
-上記のテストを 3 つの方法で試してみて、メリットデメリット比較します
-
-- End to End
-- モック
-- コンシューマ駆動テスト・Pact
-
-<br>
-
 # 自分で動かしたい ✋
 
-- 以降のデモは、こちらのレポジトリを Clone してお手元で再現できます
+- このデモは、こちらのレポジトリを Clone してお手元で再現できます
+  <a href="https://github.com/toyamarinyon/sat0shi-store">https://github.com/toyamarinyon/sat0shi-store</a>
 
 ---
 
-# End to End
+# デモサービスにコンシューマ駆動テストをやってみる
 
-ローカルに全てのサービスを立ち上げてテスト
+- コンシューマ駆動テストは、 Consumer (Web サービス) と Provider(API サービス) の間で Contract (契約) を結び、Contract に違反していないことを Consumer, Provider それぞれがテストします
+- Contract (契約)の内容は、リクエストとレスポンスのセットです
 
-- 👍 成功すると信頼できる
-- 🤔 遅い、不安定
-- 🤔 複雑なサービスを全てローカルで立ち上げられないこともある
+> - /api/products?query=en に GET リクエスト送ったら、products フィールドに配列で英語の商品情報が入った json が返ってくる
+> - /api/products?query=jp に GET リクエスト送ったら、products フィールドに配列で日本語の商品情報が入った json が返ってくる
 
-<img src="/e2e.png" />
-
----
-
-# モック
-
-API サービスをモックにして Web サーバーだけ立ち上げてテスト、モックは Cypress の intercept を使って実装
-
-- 👍 速い、安定
-- 🤔 API サービスの仕様変更に気づかずにリリースする可能性がある
-  <img src="/mock.png" />
+<img src="/cdc_0.png" class="h-70" />
 
 ---
 
-# コンシューマ駆動テスト
+# 誰が Contract を作るのか
 
-コンシューマ駆動テストは、 Contract（契約） と呼ばれるモックを使って、サービスを Consumer(クライアント) と Provider(サーバー) に分離してテストする手法です。
+- Consumer (Web サービス) が作ります
+- まず Provider のモックを作り、期待するリクエスト、レスポンスを定義してテストをします
+- テストに成功すると Contract が作成されます
+- 次に、Contract から Consumer のモックを作成し、Provider が Consumer の期待したレスポンスを返せるかをテストします
+- Consumer から 契約を作ってテストするので、 コンシューマ駆動テストという名前になっています
 
-- デモでは Consumer が Webサービスになり、Provider が APIサービスになります。
-
-先ほどの cy.intercept を使ったモックとの違いは、順を追って説明します。
-
-<img src="/pact_1.png" class="h-64" />
-
----
-
-# コンシューマ駆動テスト - ステップ 1. Consumer
-
-まずは Consumer (Webサービス) からテストします
-
-- Consumer のテストでは、 Provider に期待する挙動を モック として定義します
-
-> - /api/products?query=en に GET リクエスト送ったら、products フィールドに配列で英語の商品情報が入ったjsonが返ってくる
-> - /api/products?query=jp に GET リクエスト送ったら、products フィールドに配列で日本語の商品情報が入ったjsonが返ってくる
-
-- テストを実行すると モック の呼び出し結果がファイルに出力されます
-
-<img src="/pact_2.png" class="h-99" />
+<img src="/cdc_1.png" class="h-60" />
 
 ---
 
-# コンシューマ駆動テスト - ステップ 2. Provider
+# Scheme は逆方向のイメージ
 
-次に Provider (APIサービス) をテストします
+- Scheme は、Provider の仕様をもらって、Consumer がそれを満たすように実装する
+- コンシューマ駆動テスト は、Consumer が実際に使っている API をファイルに書き出して、Provider が意図せずに壊すこと防ぐ
 
-- Provider のテストでは、先ほど出力されたファイルから Consumerのモックを作成し、Consumer が期待する通りの動作をするかをテストします
+> Schemas are abstract, contracts are concrete. / Matt Fellows
 
-> - /api/products?query=en に GET リクエスト送ったら、products フィールドに配列で英語の商品情報が入ったjsonが返ってくる
-> - /api/products?query=jp に GET リクエスト送ったら、products フィールドに配列で日本語の商品情報が入ったjsonが返ってくる
-
-- 期待通りに動作すればテストが通ります
-
-<img src="/pact_3.png" class="h-56" />
+<img src="/cdc_2.png" class="h-70" />
 
 ---
 
-# コンシューマ駆動テスト - ステップ 3. Provider 変更
+# Pact でコンシューマ駆動テストを書く - Consumer
 
-- 商品名のフィールドを name から title に変更することになった
+<div class="flex">
+<section>
+
+では、実際にコンシューマ駆動のテストを書いてみます
+
+コンシューマ駆動テストのためのツールはいくつかありますが、今回は対応言語が多く、開発も盛んな Pact を使います
+
+</section>
+
+<img src="/step1.png" class="h-65" />
+</div>
+
+---
+
+# Pact でコンシューマ駆動テストを書く - Provider
+
+<div class="flex">
+<section>
+
+次に Provider (API サービス) をテストします
+
+- Provider のテストでは、先ほど作成したファイルから Consumer のモックを作成し、Consumer が期待する通りの動作をするかをテストします
+
+</section>
+
+<img src="/step2.png" class="h-65" />
+</div>
+
+---
+
+# コンシューマ駆動テストの恩恵を感じる
+
+- Provider が /api/products のレスポンスのフィールド名をうっかり変えてしまった
 - Consumer のテストは通る
 - Provider のテストは失敗する 👍
-- 移行計画を立てて再度実施
-
-
----
-
-# 未来の話
-
-- いろいろな事情でサービスがたくさんできた
-- End to End テストは現実的ではない
-- 注文サービスについて考えてみる
-
-<img src="/feature.png" class="h-80" />
+- こんなことは実際ないと思いますが、Provider に実施した変更の影響範囲を把握できておらず、本番リリース後に不具合が見つかった、という経験がある人は少ないないのかなと思います
 
 ---
 
-# 注文サービス
+# Pact, コンシューマ駆動テストが解決する課題
 
-- Web サービスと admin サービスがConsumer
-- 在庫管理サービスがProvider
-
-<img src="/order.png" />
-
+Consumer が使っている API を具体的に明示することで、Provider が意図せずに壊すこと防ぐ
 
 ---
 
-# 複数のマイクロサービスや SaaS を組み合わせたプロダクトを上手にテストする方法
+# Contract の管理
 
-- End-to-End テストは、成功すると信頼できるが、時間がかかる。よく壊れる
-- モックを使ったテストは、早いけど、どこまで信頼していいか悩む
+実際に運用していく場合、Contract をレポジトリに含めるのはあまり現実的ではないですね
 
----
-
-# Navigation
-
-Hover on the bottom-left corner to see the navigation's controls panel
-
-### Keyboard Shortcuts
-
-|                                                      |                             |
-| ---------------------------------------------------- | --------------------------- |
-| <kbd>space</kbd> / <kbd>tab</kbd> / <kbd>right</kbd> | next animation or slide     |
-| <kbd>left</kbd> / <kbd>shift</kbd><kbd>space</kbd>   | previous animation or slide |
-| <kbd>up</kbd>                                        | previous slide              |
-| <kbd>down</kbd>                                      | next slide                  |
-
----
-
-layout: image-right
-image: 'https://source.unsplash.com/collection/94734566/1920x1080'
-
----
-
-# Code
-
-Use code snippets and get the highlighting directly!
-
-```ts
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
-
-function updateUser(id: number, update: Partial<User>) {
-  const user = getUser(id);
-  const newUser = { ...user, ...update };
-  saveUser(id, newUser);
-}
-```
-
----
-
-layout: center
-class: "text-center"
+便利な SaaS [PACTFLOW](https://pactflow.io/) があります
 
 ---
 
 # Learn More
 
-[Documentations](https://sli.dev) / [GitHub Repo](https://github.com/slidevjs/slidev)
+この発表を作る中で見つけた良さそうな資料を紹介します
+
+## 国内の事例
+
+- [Cookpad](https://techlife.cookpad.com/entry/2016/06/28/164247)
+- [freee](https://developers.freee.co.jp/entry/introduction-of-pact)
+- [ubie](https://note.com/sys1yagi/n/n93a3d8f4a64a)
+
+<br>
+
+## コンシューマ駆動テスト・Pact についての説明
+
+- [Consumer-driven Contract Testing (CDC)](https://microsoft.github.io/code-with-engineering-playbook/automated-testing/cdc-testing/)
+
+  End to End テストの問題点とそれを コンシューマ駆動テストでどのように解決するか分かりやすく説明されていました
+
+- [How Pact contract testing works](https://pactflow.io/how-pact-works/#slide-1)
+
+  Pact の動きがアニメーションで説明されていて、イメージしやすいです
+
+---
+
+# Learn More
+
+## もっと詳しく
+
+PACTFLOW のブログに色々な記事があるのでおすすめです。2つ紹介します。
+
+- [Schemas are not contracts](https://pactflow.io/blog/schemas-are-not-contracts/)
+
+  スキーマは Contract の代わりにならないということについて説明されています。若干ポジショントークな気はしますが、理解できるところもありました。
+
+- [Proving E2E tests are a Scam](https://pactflow.io/blog/proving-e2e-tests-are-a-scam/)
+
+  マイクロサービスを End to End でテストするのが現実的でないことを丁寧に説明しています。
