@@ -25,7 +25,7 @@ toyama satoshi / @toyamarinyon
 
 <div>
 <img src="/route06_a.png" class="h-64 shadow" />
-<a href="https://prtimes.jp/main/html/rd/p/000000006.000056964.html" class="text-xs">ROUTE06、三菱商事の部品調達に関するマーケットプレイスの立ち上げを支援 / PRTimes</a>
+<a href="https://prtimes.jp/main/html/rd/p/000000006.000056964.html" class="text-xs">直近のプレスリリース</a>
 </div>
 
 </div>
